@@ -178,6 +178,8 @@ func (p *Pipeline) ProcessRequest(logger *zap.Logger, session Session, in *rtapi
 
 	success, out := pipelineFn(logger, session, in)
 
+	logger.Debug("success", zap.Bool("success", success))
+
 	if success && messageName != "" {
 		// Unsuccessful operations do not trigger after hooks.
 		if fn := p.runtime.AfterRt(messageNameID); fn != nil {

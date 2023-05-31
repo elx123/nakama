@@ -356,6 +356,8 @@ func (p *Pipeline) matchDataSend(logger *zap.Logger, session Session, envelope *
 		return false, nil
 	}
 
+	logger.Debug("matchIDComponents[1]", zap.String("matchIDComponents[1]", matchIDComponents[1]))
+
 	// If it's an authoritative match pass the data to the match handler.
 	if matchIDComponents[1] != "" {
 		if p.tracker.GetLocalBySessionIDStreamUserID(session.ID(), PresenceStream{Mode: StreamModeMatchAuthoritative, Subject: matchID, Label: matchIDComponents[1]}, session.UserID()) == nil {
