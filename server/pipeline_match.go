@@ -362,6 +362,7 @@ func (p *Pipeline) matchDataSend(logger *zap.Logger, session Session, envelope *
 	if matchIDComponents[1] != "" {
 		if p.tracker.GetLocalBySessionIDStreamUserID(session.ID(), PresenceStream{Mode: StreamModeMatchAuthoritative, Subject: matchID, Label: matchIDComponents[1]}, session.UserID()) == nil {
 			// User is not part of the match.
+			logger.Debug("just for test")
 			return false, nil
 		}
 
