@@ -314,6 +314,7 @@ func loop(mh *MatchHandler) {
 	}
 
 	// Check if the match has been empty too long.
+	//maxEmptyTicks 是读取配置的
 	if mh.maxEmptyTicks > 0 {
 		if mh.PresenceList.size.Load() == 0 {
 			mh.emptyTicks++
