@@ -2585,7 +2585,7 @@ map[string]RuntimeBeforeRtFunction, map[string]RuntimeAfterRtFunction, *RuntimeB
 RuntimeTournamentEndFunction, RuntimeTournamentResetFunction, RuntimeLeaderboardResetFunction,
 RuntimePurchaseNotificationAppleFunction, RuntimeSubscriptionNotificationAppleFunction, 
 RuntimePurchaseNotificationGoogleFunction, RuntimeSubscriptionNotificationGoogleFunction, *RuntimeEventFunctions, func() []string, error) {
-	//这里我猜测是单独一个runtimelogger
+
 	runtimeLogger := NewRuntimeGoLogger(logger)
 	node := config.GetName()
 	env := config.GetRuntime().Environment
@@ -2603,7 +2603,7 @@ RuntimePurchaseNotificationGoogleFunction, RuntimeSubscriptionNotificationGoogle
 		matchLock.RUnlock()
 		return matchNames
 	}
-
+	// js， lua 都会调用RegisterCreateFn
 	matchProvider.RegisterCreateFn("go",
 		func(ctx context.Context, logger *zap.Logger, id uuid.UUID, node string, stopped *atomic.Bool, name string) (RuntimeMatchCore, error) {
 			matchLock.RLock()
@@ -2624,7 +2624,7 @@ RuntimePurchaseNotificationGoogleFunction, RuntimeSubscriptionNotificationGoogle
 			return NewRuntimeGoMatchCore(logger, name, matchRegistry, router, id, node, version, stopped, db, env, nk, match)
 		})
 	nk.matchCreateFn = matchProvider.CreateMatch
-
+	//所以目前看initializer这个的作用就是初始化的时候传给 每个模块
 	initializer := &RuntimeGoInitializer{
 		logger:  runtimeLogger,
 		db:      db,

@@ -23,11 +23,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/heroiclabs/nakama/v3/internal/satori"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/heroiclabs/nakama/v3/internal/satori"
 
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama-common/api"
@@ -41,6 +42,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// 这个模块我感觉是用go封装一层的调用，和lua，js是同级的
 type RuntimeGoNakamaModule struct {
 	sync.RWMutex
 	logger               *zap.Logger

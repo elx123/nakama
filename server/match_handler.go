@@ -304,6 +304,7 @@ func loop(mh *MatchHandler) {
 	}
 
 	// Every 30 seconds clear expired join markers.
+	//假如我们这里设置1 Rate ，那么整个表达式我理解就是循环了30 * n 次，因为是取余
 	if mh.tick%(mh.Rate*30) == 0 {
 		presences := mh.JoinMarkerList.ClearExpired(mh.tick)
 		if len(presences) != 0 {

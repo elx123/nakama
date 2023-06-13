@@ -526,6 +526,7 @@ type MatchProvider struct {
 	providerNames []string
 }
 
+// name 的index 对应 fn的index
 func (mp *MatchProvider) RegisterCreateFn(name string, fn RuntimeMatchCreateFunction) {
 	mp.Lock()
 	newProviders := make([]RuntimeMatchCreateFunction, len(mp.providers)+1, len(mp.providers)+1)

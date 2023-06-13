@@ -82,6 +82,7 @@ func (m *MatchJoinMarkerList) Add(presence *MatchPresence, currentTick int64) {
 	m.joinMarkers[presence.SessionID] = &MatchJoinMarker{
 		presence:   presence,
 		expiryTick: currentTick + (m.tickRate * (m.expiryDelayMs / 1000)),
+		//我理解就是当前的Tick值，+ N 也就是常量m.tickRate * (m.expiryDelayMs / 1000)
 	}
 	m.Unlock()
 }
@@ -109,7 +110,7 @@ func (m *MatchJoinMarkerList) ClearExpired(tick int64) []*MatchPresence {
 type MatchPresenceList struct {
 	sync.RWMutex
 	size            *atomic.Int32
-	presences       []*MatchPresenceListItem
+	presences       []*MatchPresenceListItem // 这里可以看出作者的风格，喜欢将slice和map一一对应
 	presenceMap     map[uuid.UUID]string
 	presencesRead   *atomic.Value
 	presenceIDsRead *atomic.Value
@@ -221,6 +222,7 @@ func (m *MatchPresenceList) FilterPresenceIDs(ids []*PresenceID) []*PresenceID {
 			ids = ids[:len(ids)-1]
 			i--
 		}
+		// 因为 和最后一个元素交换了，所以i-- ，要对现在的i 做检查
 	}
 	m.RUnlock()
 	return ids

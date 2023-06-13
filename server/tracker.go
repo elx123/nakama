@@ -42,6 +42,7 @@ const (
 	StreamModeParty
 )
 
+// 可以理解为Presence的一个快照
 type PresenceID struct {
 	Node      string
 	SessionID uuid.UUID
