@@ -42,7 +42,6 @@ const (
 	StreamModeParty
 )
 
-// 可以理解为Presence的一个快照
 type PresenceID struct {
 	Node      string
 	SessionID uuid.UUID
@@ -864,6 +863,7 @@ func (t *LocalTracker) ListLocalSessionIDByStream(stream PresenceStream) []uuid.
 	return ps
 }
 
+// 从StreamSend到这里，可以看出presencesByStream将用户通过Stream捆绑在一起
 func (t *LocalTracker) ListPresenceIDByStream(stream PresenceStream) []*PresenceID {
 	t.RLock()
 	byStream, anyTracked := t.presencesByStream[stream.Mode][stream]
@@ -1008,6 +1008,7 @@ func (t *LocalTracker) processEvent(e *PresenceEvent) {
 	}
 
 	// Notify locally hosted authoritative matches of join and leave events.
+	// 这里相当于通知MatchRegistry 我们要给对应的matchID 添加 joins这个几个玩家
 	for matchID, joins := range matchJoins {
 		t.matchJoinListener(matchID, joins)
 	}

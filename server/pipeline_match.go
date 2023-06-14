@@ -105,7 +105,7 @@ func (p *Pipeline) matchJoin(logger *zap.Logger, session Session, envelope *rtap
 		matchIDString = incoming.GetMatchId()
 		// Validate the match ID.
 		matchIDComponents := strings.SplitN(matchIDString, ".", 2)
-		//例子"sdfsd."会得到result:sdfsd
+		//例子"sdfsd."会得到result:sdfsd和.
 		//result:
 		if len(matchIDComponents) != 2 {
 			session.Send(&rtapi.Envelope{Cid: envelope.Cid, Message: &rtapi.Envelope_Error{Error: &rtapi.Error{
