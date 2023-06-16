@@ -42,8 +42,8 @@ type StatusRegistry struct {
 	ctxCancelFn context.CancelFunc
 
 	eventsCh  chan *statusEvent
-	bySession map[uuid.UUID]map[uuid.UUID]struct{} // 从follow 的逻辑来看 bySession存的是sessionId对应的所有userid，也就是这个session 所有的 他所有follow的用户
-	byUser    map[uuid.UUID]map[uuid.UUID]struct{} // 从NewStatusRegistry中可以看出byUser 存着userid的所有follower，注意这些follower都是在线的，所以存的是sessionid
+	bySession map[uuid.UUID]map[uuid.UUID]struct{} // 从follow 的逻辑来看 bySession存的是sessionId对应的所有userid，也就是这个玩家 所有关注的user
+	byUser    map[uuid.UUID]map[uuid.UUID]struct{} // userid的所有followers，简单说就是用户a的所有追随者，这里map[uuid.UUID]struct{} 下只存sessionID因为我们只关心在线用户
 
 	onlineMutex *sync.RWMutex
 	onlineCache map[uuid.UUID]map[string]struct{} // 从NewStatusRegistry中可以看出 存的是 对应玩家 活跃的sessionID
@@ -166,7 +166,7 @@ func (s *StatusRegistry) Stop() {
 	s.ctxCancelFn()
 }
 
-// 这个session 可以理解为使用者 ,userIDs可以理解为我们想要follow的玩家id
+// 在理解follow的前提是理解bySession和byUser
 func (s *StatusRegistry) Follow(sessionID uuid.UUID, userIDs map[uuid.UUID]struct{}) {
 	if len(userIDs) == 0 {
 		return
