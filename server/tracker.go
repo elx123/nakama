@@ -827,6 +827,7 @@ func (t *LocalTracker) GetBySessionIDStreamUserID(node string, sessionID uuid.UU
 	return &p.Meta
 }
 
+// 查找某个 mode下 某个stream下 总共的玩家
 func (t *LocalTracker) ListByStream(stream PresenceStream, includeHidden bool, includeNotHidden bool) []*Presence {
 	if !includeHidden && !includeNotHidden {
 		return []*Presence{}
