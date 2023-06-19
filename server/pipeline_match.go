@@ -34,6 +34,7 @@ type matchDataFilter struct {
 	sessionID uuid.UUID
 }
 
+// 从这里看StreamModeMatchRelayed 不会在match register中 存放matchID
 func (p *Pipeline) matchCreate(logger *zap.Logger, session Session, envelope *rtapi.Envelope) (bool, *rtapi.Envelope) {
 	name := envelope.GetMatchCreate().Name
 	var matchID uuid.UUID
@@ -253,7 +254,7 @@ func (p *Pipeline) matchJoin(logger *zap.Logger, session Session, envelope *rtap
 			}}}, true)
 			return false, nil
 		}
-
+		// 这里new代表成功加入match
 		if isNew {
 			stream := PresenceStream{Mode: mode, Subject: matchID, Label: node}
 			m := PresenceMeta{

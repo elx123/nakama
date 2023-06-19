@@ -189,8 +189,8 @@ type LocalTracker struct {
 	protojsonMarshaler *protojson.MarshalOptions
 	name               string
 	eventsCh           chan *PresenceEvent
-	presencesByStream  map[uint8]map[PresenceStream]map[presenceCompact]*Presence
-	presencesBySession map[uuid.UUID]map[presenceCompact]*Presence
+	presencesByStream  map[uint8]map[PresenceStream]map[presenceCompact]*Presence // 这里是依据 mode - PresenceStream - Presence 的三层 map 存储
+	presencesBySession map[uuid.UUID]map[presenceCompact]*Presence                // 可以理解为这个sessionId 有参与哪几个stream
 	count              *atomic.Int64
 
 	ctx         context.Context
@@ -910,10 +910,12 @@ func (t *LocalTracker) processEvent(e *PresenceEvent) {
 
 	// Group joins/leaves by stream to allow batching.
 	// Convert to wire representation at the same time.
+	// 这里map是为了 调用sendtoPresence
 	streamJoins := make(map[PresenceStream][]*rtapi.UserPresence, 0)
 	streamLeaves := make(map[PresenceStream][]*rtapi.UserPresence, 0)
 
 	// Track grouped authoritative match joins and leaves separately from client-bound events.
+	// 这里的map只是为了调用join和leave
 	matchJoins := make(map[uuid.UUID][]*MatchPresence, 0)
 	matchLeaves := make(map[uuid.UUID][]*MatchPresence, 0)
 

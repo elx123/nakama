@@ -98,6 +98,7 @@ func (r *LocalMessageRouter) SendToPresenceIDs(logger *zap.Logger, presenceIDs [
 	}
 }
 
+// 从这里可以看出 这里stream可以是authoritative match或者是Relayed Multiplayer
 func (r *LocalMessageRouter) SendToStream(logger *zap.Logger, stream PresenceStream, envelope *rtapi.Envelope, reliable bool) {
 	presenceIDs := r.tracker.ListPresenceIDByStream(stream)
 	r.SendToPresenceIDs(logger, presenceIDs, envelope, reliable)
