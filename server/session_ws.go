@@ -182,7 +182,9 @@ func (s *sessionWS) Consume() {
 		s.Close("failed to set initial read deadline", runtime.PresenceReasonDisconnect)
 		return
 	}
+	// 这里我猜测，作为全双工协议，我们也需要设置对应的handler
 	s.conn.SetPongHandler(func(string) error {
+		// 在接受到pong的 message以后，重置ping pong定时器
 		s.maybeResetPingTimer()
 		return nil
 	})
