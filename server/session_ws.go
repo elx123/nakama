@@ -202,6 +202,8 @@ IncomingLoop:
 			// Ignore "normal" WebSocket errors.
 			if !websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived) {
 				// Ignore underlying connection being shut down while read is waiting for data.
+				// 这里比较字符串 应该是历史遗留问题了
+				// https://github.com/golang/go/issues/4373
 				if e, ok := err.(*net.OpError); !ok || e.Err.Error() != "use of closed network connection" {
 					s.logger.Debug("Error reading message from client", zap.Error(err))
 					reason = err.Error()
