@@ -872,6 +872,7 @@ func (t *LocalTracker) ListPresenceIDByStream(stream PresenceStream) []*Presence
 		t.RUnlock()
 		return []*PresenceID{}
 	}
+	//也从ListPresenceIDByStream中可以看出，同一个userid可以有多个sessionid
 	ps := make([]*PresenceID, 0, len(byStream))
 	for pc := range byStream {
 		pid := pc.ID
