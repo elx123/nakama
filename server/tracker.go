@@ -56,7 +56,7 @@ type PresenceStream struct {
 
 type PresenceMeta struct {
 	Format      SessionFormat
-	Hidden      bool
+	Hidden      bool // 这个Hidden实现的是类似于隐身的功能
 	Persistence bool
 	Username    string
 	Status      string
