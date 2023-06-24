@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
     id            UUID          NOT NULL,
     username      VARCHAR(128)  NOT NULL CONSTRAINT users_username_key UNIQUE,
     display_name  VARCHAR(255),
-    avatar_url    VARCHAR(512),
+    avatar_url    VARCHAR(512),  -- 我理解就是一个解释性的 网址用来 example
     -- https://tools.ietf.org/html/bcp47
     lang_tag      VARCHAR(18)   NOT NULL DEFAULT 'en',
     location      VARCHAR(255), -- e.g. "San Francisco, CA"
