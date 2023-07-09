@@ -43,6 +43,7 @@ const (
 	ChannelMessageTypeGroupDemote
 )
 
+// 根据chatGPT的提示，这里是为了匹配控制字符
 var controlCharsRegex = regexp.MustCompilePOSIX("[[:cntrl:]]+")
 
 func (p *Pipeline) channelJoin(logger *zap.Logger, session Session, envelope *rtapi.Envelope) (bool, *rtapi.Envelope) {

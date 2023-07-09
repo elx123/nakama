@@ -36,7 +36,7 @@ const (
 	StreamModeStatus
 	StreamModeChannel
 	StreamModeGroup
-	StreamModeDM
+	StreamModeDM // 这个是直接发消息给玩家
 	StreamModeMatchRelayed
 	StreamModeMatchAuthoritative
 	StreamModeParty

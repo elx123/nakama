@@ -230,6 +230,7 @@ func UnbanUsers(ctx context.Context, logger *zap.Logger, db *sql.DB, sessionCach
 
 func UserExistsAndDoesNotBlock(ctx context.Context, db *sql.DB, checkUserID, blocksUserID uuid.UUID) (bool, error) {
 	var count int
+	// 这里 AND 连接的是整个NOT EXISTS子查询
 	err := db.QueryRowContext(ctx, `
 SELECT COUNT(id) FROM users
 WHERE id = $1::UUID AND NOT EXISTS (
