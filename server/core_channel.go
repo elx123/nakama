@@ -655,6 +655,7 @@ func BuildChannelId(ctx context.Context, logger *zap.Logger, db *sql.DB, userID 
 				return "", PresenceStream{}, errors.New("Failed to look up group membership")
 			}
 			if !allowed {
+				//这里错误信息就是乱写了，应该是没有权限
 				return "", PresenceStream{}, fmt.Errorf("Group not found: %w", runtime.ErrInvalidChannelTarget)
 			}
 		}
