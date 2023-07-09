@@ -671,7 +671,9 @@ func AddGroupUsers(ctx context.Context, logger *zap.Logger, db *sql.DB, router M
 			// Check if this is a join request being accepted.
 			incrementEdgeCount := true
 			var userExists sql.NullBool
+			// 因此，如果group_edge表中存在至少一个条目，其source_id和destination_id字段分别匹配参数$1和$2，则此查询将返回TRUE，否则返回FALSE。
 			query = "SELECT EXISTS(SELECT 1 FROM group_edge WHERE source_id = $1::UUID AND destination_id = $2::UUID)"
+			// 这里也能看出group_edge是如何存储的
 			if err := tx.QueryRowContext(ctx, query, groupID, uid).Scan(&userExists); err != nil {
 				logger.Debug("Could not retrieve user state from group_edge.", zap.Error(err), zap.String("group_id", groupID.String()), zap.String("user_id", uid.String()))
 				return err
