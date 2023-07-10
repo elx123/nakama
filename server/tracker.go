@@ -34,9 +34,9 @@ import (
 const (
 	StreamModeNotifications uint8 = iota
 	StreamModeStatus
-	StreamModeChannel
-	StreamModeGroup
-	StreamModeDM // 这个是直接发消息给玩家
+	StreamModeChannel // room
+	StreamModeGroup   // group
+	StreamModeDM      // 这个是直接发消息给玩家
 	StreamModeMatchRelayed
 	StreamModeMatchAuthoritative
 	StreamModeParty
@@ -47,6 +47,7 @@ type PresenceID struct {
 	SessionID uuid.UUID
 }
 
+// 针对不同的Mode，另外3个变量的意义也不同，可以参考BuildChannelId
 type PresenceStream struct {
 	Mode       uint8
 	Subject    uuid.UUID
