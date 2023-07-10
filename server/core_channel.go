@@ -36,6 +36,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// 这里也有一个细节，对于需要判断的错误 会定义一个variable，对于不重要的错误 直接构造然后返回
 var (
 	errChannelMessageIdInvalid = errors.New("Invalid message identifier")
 
@@ -606,6 +607,7 @@ func BuildChannelId(ctx context.Context, logger *zap.Logger, db *sql.DB, userID 
 			return "", PresenceStream{}, fmt.Errorf("Channel name is required and must be 1-64 chars: %w", runtime.ErrInvalidChannelTarget)
 		}
 		if controlCharsRegex.MatchString(target) {
+			// 这里也有一个细节，对于需要判断的错误 会定义一个variable，对于不重要的错误 直接构造然后返回
 			return "", PresenceStream{}, fmt.Errorf("Channel name must not contain control chars: %w", runtime.ErrInvalidChannelTarget)
 		}
 		if !utf8.ValidString(target) {
