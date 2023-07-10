@@ -936,6 +936,7 @@ func (t *LocalTracker) processEvent(e *PresenceEvent) {
 			// Status field is only populated for status stream presences.
 			pWire.Status = &wrapperspb.StringValue{Value: p.Meta.Status}
 		}
+		// 和channel相关的是这里
 		if j, ok := streamJoins[p.Stream]; ok {
 			streamJoins[p.Stream] = append(j, pWire)
 		} else {
@@ -1031,6 +1032,7 @@ func (t *LocalTracker) processEvent(e *PresenceEvent) {
 
 	// Send joins, together with any leaves for the same stream.
 	for stream, joins := range streamJoins {
+		// 同一个stream，只认Join
 		leaves, ok := streamLeaves[stream]
 		if ok {
 			delete(streamLeaves, stream)
