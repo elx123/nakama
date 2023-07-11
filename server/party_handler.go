@@ -48,8 +48,8 @@ type PartyHandler struct {
 	leader                   *PresenceID
 	leaderUserPresence       *rtapi.UserPresence
 	members                  []*PresenceID
-	memberUserPresences      []*rtapi.UserPresence
-	joinsInProgress          []*PresenceID
+	memberUserPresences      []*rtapi.UserPresence //这个结构更像是对外的用户信息，不关心内部分布式节点
+	joinsInProgress          []*PresenceID         // 从join的逻辑看，会在join过程中删除对应的PresenceID
 	joinRequests             []*Presence
 	joinRequestUserPresences []*rtapi.UserPresence
 }

@@ -48,6 +48,7 @@ type PresenceID struct {
 }
 
 // 针对不同的Mode，另外3个变量的意义也不同，可以参考BuildChannelId
+// 在真正存储的时候，会有冗余，比方说对应stream下某个具体的Presence，但是Presence下也会存一份该PresenceStream
 type PresenceStream struct {
 	Mode       uint8
 	Subject    uuid.UUID
