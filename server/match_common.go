@@ -44,6 +44,7 @@ func IterateBlugeMatches(dmi search.DocumentMatchIterator, loadFields map[string
 	for dm != nil && err == nil {
 		var bm blugeMatch
 		bm.Fields = make(map[string]interface{})
+		// 访问每个DocumentMatch的的各个Field
 		err = dm.VisitStoredFields(func(field string, value []byte) bool {
 			if field == "_id" {
 				bm.ID = string(value)
@@ -75,6 +76,8 @@ func IterateBlugeMatches(dmi search.DocumentMatchIterator, loadFields map[string
 	return rv, nil
 }
 
+// 目前看这2个函数就是处理doc，并添加字段和索引
+// MapMatchIndexEntry实际引用
 func BlugeWalkDocument(data interface{}, path []string, doc *bluge.Document) {
 	val := reflect.ValueOf(data)
 	if !val.IsValid() {
@@ -250,12 +253,14 @@ func ParseQueryString(query string) (bluge.Query, error) {
 	return queryStr.ParseQueryString(query, opt)
 }
 
+// 实现了Similarity 接口
 type constantSimilarity struct{}
 
 func (c constantSimilarity) ComputeNorm(_ int) float32 {
 	return 0
 }
 
+// 返回一个search.Scorer接口
 func (c constantSimilarity) Scorer(boost float64, _ segment.CollectionStats, _ segment.TermStats) search.Scorer {
 	return similarity.ConstantScorer(boost)
 }
