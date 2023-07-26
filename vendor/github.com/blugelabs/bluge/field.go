@@ -262,6 +262,7 @@ func (n *numericAnalyzer) Analyze(input []byte) analysis.TokenStream {
 	return tokens
 }
 
+// 可以看出不同的类型区别在于针对value的不同处理方式
 func NewNumericField(name string, number float64) *TermField {
 	return newNumericFieldWithIndexingOptions(name, number, defaultNumericIndexingOptions)
 }
