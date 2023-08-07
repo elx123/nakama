@@ -199,7 +199,7 @@ type LocalMatchmaker struct {
 	matchedEntriesFn func([][]*MatchmakerEntry)
 	indexWriter      *bluge.Writer
 	// All tickets for a session ID.
-	sessionTickets map[string]map[string]struct{}
+	sessionTickets map[string]map[string]struct{} //这里记录的是每一个session对应的ticket，具体参考Add函数
 	// All tickets for a party ID.
 	partyTickets map[string]map[string]struct{}
 	// Index for each ticket.
