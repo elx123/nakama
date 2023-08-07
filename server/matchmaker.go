@@ -732,7 +732,7 @@ func (m *LocalMatchmaker) RemoveSession(sessionID, ticket string) error {
 		return runtime.ErrMatchmakerTicketNotFound
 	}
 	delete(m.indexes, ticket)
-
+	// 同时删除这个ticket所涉及的所有玩家的ticket
 	for _, entry := range index.Entries {
 		if sessionTickets, ok := m.sessionTickets[entry.Presence.SessionId]; ok {
 			if l := len(sessionTickets); l <= 1 {
