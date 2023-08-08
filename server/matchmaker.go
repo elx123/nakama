@@ -62,6 +62,7 @@ func (p *MatchmakerPresence) GetReason() runtime.PresenceReason {
 	return runtime.PresenceReasonUnknown
 }
 
+// 这个结构体我理解就是主要是为了体现Presence，可能是party中的某个成员
 type MatchmakerEntry struct {
 	Ticket     string                 `json:"ticket"`
 	Presence   *MatchmakerPresence    `json:"presence"`
@@ -311,6 +312,8 @@ func (m *LocalMatchmaker) Process() {
 	// Run the custom matching function if one is registered in the runtime, otherwise use the default process function.
 	var matchedEntries [][]*MatchmakerEntry
 	var expiredActiveIndexes []string
+	// 这个自定义function的逻辑可以参考matchmaker模块文档
+	// 从返回值的名称来看，这个processDefault是为了剔除过期ticket
 	if m.runtime.matchmakerOverrideFunction != nil {
 		matchedEntries, expiredActiveIndexes = m.processCustom(activeIndexesCopy, indexCount, indexesCopy)
 	} else {

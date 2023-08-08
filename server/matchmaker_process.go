@@ -36,6 +36,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 	}
 
 	selectedTickets := make(map[string]struct{}, activeIndexCount*2)
+	// 目前看所有的逻辑都是基于activeIndexesCopy 这个map，也就是目前看，都是筛选active中的ticket
 	for ticket, activeIndex := range activeIndexesCopy {
 		if !threshold && timer != nil {
 			select {
@@ -51,6 +52,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 		}
 
 		activeIndex.Intervals++
+		// 从这里看MaxIntervals是影响activeIndex参与循环的次数，也意味着expiredActiveIndexes是如何筛选出来的
 		lastInterval := activeIndex.Intervals >= m.config.GetMatchmaker().MaxIntervals || activeIndex.MinCount == activeIndex.MaxCount
 		if lastInterval {
 			// Drop from active indexes if it has reached its max intervals, or if its min/max counts are equal. In the
@@ -109,6 +111,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 			continue
 		}
 
+		// 从这里可以看出 同时维护全文索引的信息，剔除过期的ticket
 		for i := 0; i < len(blugeMatches.Hits); i++ {
 			hitTicket := blugeMatches.Hits[i].ID
 			if hitTicket == ticket {
@@ -333,6 +336,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 	return matchedEntries, expiredActiveIndexes
 }
 
+// 这个可以理解为了自定义matchmake entity相关逻辑，而引入的函数
 func (m *LocalMatchmaker) processCustom(activeIndexesCopy map[string]*MatchmakerIndex, indexCount int, indexesCopy map[string]*MatchmakerIndex) ([][]*MatchmakerEntry, []string) {
 	matchedEntries := make([][]*MatchmakerEntry, 0, 5)
 	expiredActiveIndexes := make([]string, 0, 10)
