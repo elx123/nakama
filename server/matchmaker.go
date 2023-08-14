@@ -1026,6 +1026,7 @@ func (m *LocalMatchmaker) Remove(tickets []string) {
 	}
 }
 
+// 从代码来看，函数给对应的Doc添加Field，其中包括指定Field和第三方Field
 func MapMatchmakerIndex(id string, in *MatchmakerIndex) (*bluge.Document, error) {
 	rv := bluge.NewDocument(id)
 

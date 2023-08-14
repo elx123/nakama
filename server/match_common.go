@@ -148,6 +148,7 @@ func BlugeWalkDocument(data interface{}, path []string, doc *bluge.Document) {
 	}
 }
 
+// 这个函数其实就是给doc添加Field，其中name是用xxxx.xxxx.xxxx的形式，也就是通过path组合得到
 func blugeProcessProperty(property interface{}, path []string, doc *bluge.Document) {
 	pathString := strings.Join(path, ".")
 
