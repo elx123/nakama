@@ -208,7 +208,7 @@ type LocalMatchmaker struct {
 	// Indexes that have not yet reached their max interval count.
 	activeIndexes map[string]*MatchmakerIndex
 	// Reverse lookup cache for mutual matching.
-	revCache       *MapOf[string, map[string]bool]
+	revCache       *MapOf[string, map[string]bool] // 目前看这里记录当前的ticket 与哪些ticket 存在反向匹配
 	revThresholdFn func() *time.Timer
 }
 

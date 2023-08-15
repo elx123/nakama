@@ -24,6 +24,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// 这里为什么 copy activeIndexes和indexes，这里我们可以理解为snapshot，取当前timeslice的数据，进行处理
 func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy map[string]*MatchmakerIndex, indexCount int, indexesCopy map[string]*MatchmakerIndex) ([][]*MatchmakerEntry, []string) {
 	matchedEntries := make([][]*MatchmakerEntry, 0, 5)
 	expiredActiveIndexes := make([]string, 0, 10)
@@ -112,10 +113,11 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 			continue
 		}
 
-		// 从这里可以看出 同时维护全文索引的信息，剔除过期的ticket
+		// 这里我们从indexs ticket中选出符合条件的ticket
 		for i := 0; i < len(blugeMatches.Hits); i++ {
 			hitTicket := blugeMatches.Hits[i].ID
 			if hitTicket == ticket {
+				// 如果这个ticket是 从activeIndexesCopy 中选出的，那么我们要将其 从indexs索引中去除
 				// Remove the current ticket.
 				blugeMatches.Hits = append(blugeMatches.Hits[:i], blugeMatches.Hits[i+1:]...)
 				if len(selectedTickets) == 0 {
@@ -133,15 +135,15 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 		entryCombos := make([][]*MatchmakerEntry, 0, 5)
 		lastHitCounter := len(blugeMatches.Hits) - 1
 		for hitCounter, hit := range blugeMatches.Hits {
-			// 这条语句可能说明的是有个时间差，之前选出ticket，可能是新加入的ticket，因此indexesCopy中没有
 			hitIndex, ok := indexesCopy[hit.ID]
 			if !ok {
 				// Ticket did not exist, should not happen.
 				m.logger.Warn("matchmaker process missing index", zap.String("ticket", hit.ID))
 				continue
 			}
-
+			// 如果未达到反向匹配阀值，同时反向匹配启动
 			if !threshold && m.config.GetMatchmaker().RevPrecision {
+				// 这里逻辑应该是 已在activeIndexes 中的ticket，要从index ticket中找反向匹配 的成员
 				outerMutualMatch, err := validateMatch(m.ctx, m.revCache, indexReader, hitIndex.ParsedQuery, hit.ID, ticket)
 				if err != nil {
 					m.logger.Error("error validating mutual match", zap.Error(err))
