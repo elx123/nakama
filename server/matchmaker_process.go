@@ -131,7 +131,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 
 		// Form possible combinations, in case multiple matches might be suitable.
 		entryCombos := make([][]*MatchmakerEntry, 0, 5)
-		selectedTickets := len(blugeMatches.Hits) - 1
+		lastHitCounter := len(blugeMatches.Hits) - 1
 		for hitCounter, hit := range blugeMatches.Hits {
 			// 这条语句可能说明的是有个时间差，之前选出ticket，可能是新加入的ticket，因此indexesCopy中没有
 			hitIndex, ok := indexesCopy[hit.ID]
