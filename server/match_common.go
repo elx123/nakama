@@ -30,21 +30,24 @@ import (
 )
 
 type blugeMatch struct {
-	ID     string
-	Fields map[string]interface{}
+	ID     string                 // Doc Id
+	Fields map[string]interface{} //表示筛选出的结果Field，对应doc id中符合结果的Field 和Field value
 }
 
 type BlugeResult struct {
 	Hits []*blugeMatch
 }
 
+// dmi就是所有参与筛选的集合
+// dm就是单个元素
 func IterateBlugeMatches(dmi search.DocumentMatchIterator, loadFields map[string]struct{}, logger *zap.Logger) (*BlugeResult, error) {
 	rv := &BlugeResult{}
 	dm, err := dmi.Next()
 	for dm != nil && err == nil {
 		var bm blugeMatch
 		bm.Fields = make(map[string]interface{})
-		// 访问每个DocumentMatch的的各个Field
+		// 访问每个DocumentMatch的的逐个Field，注意这里参数是一个函数对象
+		// 具体我也能猜出来，VisitStoredFields将每个Field传入func object
 		err = dm.VisitStoredFields(func(field string, value []byte) bool {
 			if field == "_id" {
 				bm.ID = string(value)

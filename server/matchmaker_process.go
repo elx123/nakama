@@ -38,6 +38,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 	selectedTickets := make(map[string]struct{}, activeIndexCount*2)
 	// 目前看所有的逻辑都是基于activeIndexesCopy 这个map，也就是目前看，都是筛选active中的ticket
 	for ticket, activeIndex := range activeIndexesCopy {
+		//阀值 为false 并且 定时器不为空
 		if !threshold && timer != nil {
 			select {
 			case <-timer.C:
@@ -130,8 +131,9 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 
 		// Form possible combinations, in case multiple matches might be suitable.
 		entryCombos := make([][]*MatchmakerEntry, 0, 5)
-		lastHitCounter := len(blugeMatches.Hits) - 1
+		selectedTickets := len(blugeMatches.Hits) - 1
 		for hitCounter, hit := range blugeMatches.Hits {
+			// 这条语句可能说明的是有个时间差，之前选出ticket，可能是新加入的ticket，因此indexesCopy中没有
 			hitIndex, ok := indexesCopy[hit.ID]
 			if !ok {
 				// Ticket did not exist, should not happen.
