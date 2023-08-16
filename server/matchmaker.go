@@ -95,7 +95,7 @@ type MatchmakerIndex struct {
 	CreatedAt  int64                  `json:"created_at"`
 
 	// Parameters used for correctly processing various matchmaker operations, but not indexed for searching.
-	Query             string              `json:"-"`
+	Query             string              `json:"-"` // 这个Query用来获取ParsedQuery
 	Count             int                 `json:"-"`
 	CountMultiple     int                 `json:"-"`
 	SessionID         string              `json:"-"`
@@ -104,7 +104,7 @@ type MatchmakerIndex struct {
 	Node              string              `json:"-"`
 	StringProperties  map[string]string   `json:"-"`
 	NumericProperties map[string]float64  `json:"-"`
-	ParsedQuery       bluge.Query         `json:"-"`
+	ParsedQuery       bluge.Query         `json:"-"` // 目前看ParsedQuery只是用来validate具体在validateMatch函数中有细节
 	Entries           []*MatchmakerEntry  `json:"-"`
 }
 
@@ -206,7 +206,7 @@ type LocalMatchmaker struct {
 	// Index for each ticket.
 	indexes map[string]*MatchmakerIndex
 	// Indexes that have not yet reached their max interval count.
-	activeIndexes map[string]*MatchmakerIndex
+	activeIndexes map[string]*MatchmakerIndex // 经过processDefault 后会剔除activeIndexes中过期的ticket
 	// Reverse lookup cache for mutual matching.
 	revCache       *MapOf[string, map[string]bool] // 目前看这里记录当前的ticket 与哪些ticket 存在反向匹配
 	revThresholdFn func() *time.Timer
@@ -535,7 +535,7 @@ func (m *LocalMatchmaker) Add(ctx context.Context, presences []*MatchmakerPresen
 		m.logger.Error("error indexing matchmaker entries", zap.Error(err))
 		return "", 0, runtime.ErrMatchmakerIndex
 	}
-
+	// 给ticket中涉及的成员，加入到m.sessionTickets，同时append到index.Entries中
 	index.Entries = make([]*MatchmakerEntry, 0, len(presences))
 	for _, presence := range presences {
 		if _, ok := m.sessionTickets[presence.SessionId]; ok {
@@ -567,6 +567,7 @@ func (m *LocalMatchmaker) Add(ctx context.Context, presences []*MatchmakerPresen
 	return ticket, createdAt, nil
 }
 
+// 这个函数貌似没有在整个框架中使用
 func (m *LocalMatchmaker) Insert(extracts []*MatchmakerExtract) error {
 	if m.stopped.Load() {
 		return nil
@@ -736,6 +737,7 @@ func (m *LocalMatchmaker) RemoveSession(sessionID, ticket string) error {
 	}
 	delete(m.indexes, ticket)
 	// 同时删除这个ticket所涉及的所有玩家的ticket
+	// 这里的逻辑啊，比如一张party ticket，它所涉及的所有成员，都拥有同一张ticket，删除的时候，反之亦然
 	for _, entry := range index.Entries {
 		if sessionTickets, ok := m.sessionTickets[entry.Presence.SessionId]; ok {
 			if l := len(sessionTickets); l <= 1 {
