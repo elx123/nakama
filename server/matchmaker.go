@@ -1046,6 +1046,7 @@ func MapMatchmakerIndex(id string, in *MatchmakerIndex) (*bluge.Document, error)
 }
 
 func validateMatch(ctx context.Context, revCache *MapOf[string, map[string]bool], r *bluge.Reader, fromTicketQuery bluge.Query, fromTicket, toTicket string) (bool, error) {
+	// 这里是反向匹配，所以revCache这里存的首先是fromTicket
 	cache, found := revCache.Load(fromTicket)
 	if !found {
 		return false, nil
@@ -1054,7 +1055,8 @@ func validateMatch(ctx context.Context, revCache *MapOf[string, map[string]bool]
 	if cachedResult, seenBefore := cache[toTicket]; seenBefore {
 		return cachedResult, nil
 	}
-
+	// 这里可以理解为B 去 匹配A是否成立
+	// 方法呢就是通过全文索引，去查询，如果 聚合查询结果是1，那么反向匹配就是成功的
 	idQuery := bluge.NewTermQuery(toTicket).SetField("_id")
 
 	topQuery := bluge.NewBooleanQuery()

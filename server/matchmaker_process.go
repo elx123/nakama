@@ -37,7 +37,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 	}
 
 	selectedTickets := make(map[string]struct{}, activeIndexCount*2)
-	// 目前看所有的逻辑都是基于activeIndexesCopy 这个map，也就是目前看，都是筛选active中的ticket
+	// 这里可以理解为发起匹配方是activeIndexesCopy中选择，也就是说我们拿activeIndexesCopy中的成员，去发起匹配
 	for ticket, activeIndex := range activeIndexesCopy {
 		//阀值 为false 并且 定时器不为空
 		if !threshold && timer != nil {
@@ -117,7 +117,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 		for i := 0; i < len(blugeMatches.Hits); i++ {
 			hitTicket := blugeMatches.Hits[i].ID
 			if hitTicket == ticket {
-				// 如果这个ticket是 从activeIndexesCopy 中选出的，那么我们要将其 从indexs索引中去除
+				// 这个逻辑是我们去匹配的这个ticket，不能是我们自身，不能匹配自己
 				// Remove the current ticket.
 				blugeMatches.Hits = append(blugeMatches.Hits[:i], blugeMatches.Hits[i+1:]...)
 				if len(selectedTickets) == 0 {
@@ -126,6 +126,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 				i--
 			} else if _, found := selectedTickets[hitTicket]; found {
 				// Ticket has already been selected for another match during this process iteration.
+				// 可能在某次循环中已经选出这个ticket了
 				blugeMatches.Hits = append(blugeMatches.Hits[:i], blugeMatches.Hits[i+1:]...)
 				i--
 			}
@@ -134,6 +135,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 		// Form possible combinations, in case multiple matches might be suitable.
 		entryCombos := make([][]*MatchmakerEntry, 0, 5)
 		lastHitCounter := len(blugeMatches.Hits) - 1
+		// 这里我估计还需要针对这批候补ticket名单 做一系列筛选
 		for hitCounter, hit := range blugeMatches.Hits {
 			hitIndex, ok := indexesCopy[hit.ID]
 			if !ok {
@@ -141,9 +143,9 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 				m.logger.Warn("matchmaker process missing index", zap.String("ticket", hit.ID))
 				continue
 			}
-			// 如果未达到反向匹配阀值，同时反向匹配启动
+			// 如果未达到反向匹配阀值，同时反向匹配已启动
 			if !threshold && m.config.GetMatchmaker().RevPrecision {
-				// 这里逻辑应该是 已在activeIndexes 中的ticket，要从index ticket中找反向匹配 的成员
+				// 从正向匹配角度，肯定是最外层循环，也就是activeIndexesCopy当前的ticket
 				outerMutualMatch, err := validateMatch(m.ctx, m.revCache, indexReader, hitIndex.ParsedQuery, hit.ID, ticket)
 				if err != nil {
 					m.logger.Error("error validating mutual match", zap.Error(err))
