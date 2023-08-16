@@ -198,7 +198,7 @@ type LocalMatchmaker struct {
 	ctxCancelFn context.CancelFunc
 
 	matchedEntriesFn func([][]*MatchmakerEntry)
-	indexWriter      *bluge.Writer
+	indexWriter      *bluge.Writer // 虽然ticket的具体实现是MatchmakerIndex，但是仍然需要建立全文索引，与ticket ID关联，具体就是MapMatchmakerIndex
 	// All tickets for a session ID.
 	sessionTickets map[string]map[string]struct{} //这里记录的是每一个session对应的ticket，具体参考Add函数
 	// All tickets for a party ID.
