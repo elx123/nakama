@@ -164,6 +164,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 			}
 
 			// Check if there are overlapping session IDs, and if so these tickets are ineligible to match together.
+			// 比如说组队参与 匹配的成员，不能同时出现在 hitIndex的成员队伍中
 			var sessionIdConflict bool
 			for sessionID := range activeIndex.SessionIDs {
 				if _, found := hitIndex.SessionIDs[sessionID]; found {
@@ -175,8 +176,9 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 				continue
 			}
 
-			var foundComboIdx int
-			var foundCombo []*MatchmakerEntry
+			var foundComboIdx int             // 用来保存当前循环的变量值
+			var foundCombo []*MatchmakerEntry // 用来保存当前循环的变量值
+			// 目前看就是从entryCombos 循环选出合适的值
 			for entryComboIdx, entryCombo := range entryCombos {
 				if len(entryCombo)+len(hitIndex.Entries)+activeIndex.Count <= activeIndex.MaxCount {
 					// There is room in this combo for these entries. Check if there are session ID or mutual match conflicts with current combo.
