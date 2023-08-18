@@ -55,6 +55,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 
 		activeIndex.Intervals++
 		// 从这里看MaxIntervals是影响activeIndex参与循环的次数，也意味着expiredActiveIndexes是如何筛选出来的
+		// 阀值是 == 条件
 		lastInterval := activeIndex.Intervals >= m.config.GetMatchmaker().MaxIntervals || activeIndex.MinCount == activeIndex.MaxCount
 		if lastInterval {
 			// Drop from active indexes if it has reached its max intervals, or if its min/max counts are equal. In the
@@ -179,6 +180,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 			var foundComboIdx int             // 用来保存当前循环的变量值
 			var foundCombo []*MatchmakerEntry // 用来保存当前循环的变量值
 			// 目前看就是从entryCombos 循环选出合适的值
+			// 这里第一次循环我们不走这个逻辑，也就是在阅读的时候暂时过
 			for entryComboIdx, entryCombo := range entryCombos {
 				if len(entryCombo)+len(hitIndex.Entries)+activeIndex.Count <= activeIndex.MaxCount {
 					// There is room in this combo for these entries. Check if there are session ID or mutual match conflicts with current combo.
@@ -243,6 +245,18 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 			// * The combo at least satisfies the min count.
 			// * The combo does not exceed the max count.
 			// * There are no more hits that may further fill the found combo, so we get as close as possible to the max count.
+			// ---------------------------------------------------------------------------------------------------------------------------
+			// 一个组合被视为值得匹配的，如果满足以下条件之一：
+			// * 达到了最大数量。
+			// * 或满足所有以下条件：
+			// * 这是此活动索引的最后一个间隔。
+			// * 该组合至少满足最小数量。
+			// * 该组合不超过最大数量。
+			// * 没有更多的匹配项可以进一步填充找到的组合，所以我们尽可能接近最大数量。
+
+			// 这里我们逐步分析 这条 if 判断  l := len(foundCombo) + activeIndex.Count l表示 当前匹配 A和B的 人数总和
+			// l == activeIndex.MaxCount 表示 l 是否 和 activeIndex的最大 玩家人数相等
+			// (lastInterval && l >= activeIndex.MinCount && l <= activeIndex.MaxCount && hitCounter >= lastHitCounter)
 			if l := len(foundCombo) + activeIndex.Count; l == activeIndex.MaxCount || (lastInterval && l >= activeIndex.MinCount && l <= activeIndex.MaxCount && hitCounter >= lastHitCounter) {
 				if rem := l % activeIndex.CountMultiple; rem != 0 {
 					// The size of the combination being considered does not satisfy the count multiple.
@@ -252,6 +266,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 					for _, e := range foundCombo {
 						// Only tickets individually less <= the removable size are considered.
 						// For example removing a party of 3 when we're only looking to remove 2 is not allowed.
+						// 很有可能就是说真正参与比赛的玩家数量是CountMultiple，再由此 分 队伍
 						if foundIndex, ok := indexesCopy[e.Ticket]; ok && foundIndex.Count <= rem {
 							eligibleIndexesUniq[foundIndex] = struct{}{}
 						}

@@ -89,14 +89,14 @@ func (m *MatchmakerEntry) GetPartyId() string {
 type MatchmakerIndex struct {
 	Ticket     string                 `json:"ticket"`
 	Properties map[string]interface{} `json:"properties"`
-	MinCount   int                    `json:"min_count"`
-	MaxCount   int                    `json:"max_count"`
+	MinCount   int                    `json:"min_count"` // 这个相当于匹配要求，从processDefault中可以 看出这个值是 匹配后的总值要求
+	MaxCount   int                    `json:"max_count"` // 这个相当于匹配要求，从processDefault中可以 看出这个值是 匹配后的总值要求
 	PartyId    string                 `json:"party_id"`
 	CreatedAt  int64                  `json:"created_at"`
 
 	// Parameters used for correctly processing various matchmaker operations, but not indexed for searching.
 	Query             string              `json:"-"` // 这个Query用来获取ParsedQuery
-	Count             int                 `json:"-"`
+	Count             int                 `json:"-"` // 相当于当前参加匹配的玩家数量
 	CountMultiple     int                 `json:"-"`
 	SessionID         string              `json:"-"`
 	Intervals         int                 `json:"-"`
