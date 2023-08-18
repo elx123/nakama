@@ -208,7 +208,7 @@ type LocalMatchmaker struct {
 	// Indexes that have not yet reached their max interval count.
 	activeIndexes map[string]*MatchmakerIndex // 经过processDefault 后会剔除activeIndexes中过期的ticket
 	// Reverse lookup cache for mutual matching.
-	revCache       *MapOf[string, map[string]bool] // 目前看这里记录当前的ticket 与哪些ticket 存在反向匹配
+	revCache       *MapOf[string, map[string]bool] // 目前看这里记录当前的ticket 与哪些ticket 存在反向匹配 存的是ticket map[ticket]bool
 	revThresholdFn func() *time.Timer
 }
 
@@ -1061,7 +1061,8 @@ func validateMatch(ctx context.Context, revCache *MapOf[string, map[string]bool]
 
 	topQuery := bluge.NewBooleanQuery()
 	topQuery.AddMust(idQuery, fromTicketQuery)
-
+	// 这里有个细节，就是反向匹配的时候为什么不查 min_count和max_count,因为之前的查询已经相当于选出一个公共的子集
+	// 也就是B对于A 的匹配条件因为是自定义的，所以需要反向匹配
 	req := bluge.NewTopNSearch(0, topQuery).WithStandardAggregations()
 	dmi, err := r.Search(ctx, req)
 	if err != nil {

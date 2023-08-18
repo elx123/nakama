@@ -72,6 +72,8 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 		indexQuery.AddMust(activeIndex.ParsedQuery)
 
 		// Results must also have compatible min/max ranges, for example 2-4 must not match with 6-8.
+		// 2-4 和 2-3兼容
+		// 这里有个细节，全文索引中设置一个范围，是通过最大值和最小值2个变量，
 		minCountRange := bluge.NewNumericRangeInclusiveQuery(
 			float64(activeIndex.MinCount), math.Inf(1), true, true).
 			SetField("min_count")
