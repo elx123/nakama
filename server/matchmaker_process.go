@@ -266,7 +266,7 @@ func (m *LocalMatchmaker) processDefault(activeIndexCount int, activeIndexesCopy
 					for _, e := range foundCombo {
 						// Only tickets individually less <= the removable size are considered.
 						// For example removing a party of 3 when we're only looking to remove 2 is not allowed.
-						// 很有可能就是说真正参与比赛的玩家数量是CountMultiple，再由此 分 队伍
+						// 这里有个细节，组员的ticket和 发起者共享一个ticket
 						if foundIndex, ok := indexesCopy[e.Ticket]; ok && foundIndex.Count <= rem {
 							eligibleIndexesUniq[foundIndex] = struct{}{}
 						}

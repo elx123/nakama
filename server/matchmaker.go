@@ -105,7 +105,7 @@ type MatchmakerIndex struct {
 	StringProperties  map[string]string   `json:"-"`
 	NumericProperties map[string]float64  `json:"-"`
 	ParsedQuery       bluge.Query         `json:"-"` // 目前看ParsedQuery只是用来validate具体在validateMatch函数中有细节
-	Entries           []*MatchmakerEntry  `json:"-"`
+	Entries           []*MatchmakerEntry  `json:"-"` // 目前看所有成员都共享一个ticket，具体可以从party的MatchmakerAdd中分析
 }
 
 type MatchmakerExtract struct {
