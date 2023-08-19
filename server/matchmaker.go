@@ -200,7 +200,7 @@ type LocalMatchmaker struct {
 	matchedEntriesFn func([][]*MatchmakerEntry)
 	indexWriter      *bluge.Writer // 虽然ticket的具体实现是MatchmakerIndex，但是仍然需要建立全文索引，与ticket ID关联，具体就是MapMatchmakerIndex
 	// All tickets for a session ID.
-	sessionTickets map[string]map[string]struct{} //这里记录的是每一个session对应的ticket，具体参考Add函数
+	sessionTickets map[string]map[string]struct{} //这里记录的是每一个session对应的ticket，具体参考matchmake下 Add函数
 	// All tickets for a party ID.
 	partyTickets map[string]map[string]struct{}
 	// Index for each ticket.
@@ -325,7 +325,7 @@ func (m *LocalMatchmaker) Process() {
 	for _, ticket := range expiredActiveIndexes {
 		delete(m.activeIndexes, ticket)
 	}
-
+	// 删除这些选出的ticket，在 index 中的数据
 	for i := 0; i < len(matchedEntries); i++ {
 		// Check that the current matched entries are all still present and eligible for the match to be formed.
 		currentMatchedEntries := matchedEntries[i]
@@ -385,6 +385,8 @@ func (m *LocalMatchmaker) Process() {
 
 				// Check if there's a matchmaker matched runtime callback, call it, and see if it returns a match ID.
 				fn := m.runtime.MatchmakerMatched()
+				// 这里我不清楚为什么要提供这样一个第三方的函数
+				// 目前来看就是通过这个entries 获取对应matchid
 				if fn != nil {
 					tokenOrMatchID, isMatchID, err = fn(context.Background(), entries)
 					if err != nil {
