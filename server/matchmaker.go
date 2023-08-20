@@ -106,6 +106,8 @@ type MatchmakerIndex struct {
 	NumericProperties map[string]float64  `json:"-"`
 	ParsedQuery       bluge.Query         `json:"-"` // 目前看ParsedQuery只是用来validate具体在validateMatch函数中有细节
 	Entries           []*MatchmakerEntry  `json:"-"` // 目前看所有成员都共享一个ticket，具体可以从party的MatchmakerAdd中分析
+	// 读完matchmaker_process.go,你应该能理解Entries的作用，最主要的作用是作为match的参与者，
+	// 当然，完成匹配还需要与其他ticket参与方，完成组合，通过MatchmakerPresence可以快速的定位这个用户，从而与客户端交互
 }
 
 type MatchmakerExtract struct {
