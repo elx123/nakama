@@ -328,6 +328,7 @@ func (m *LocalMatchmaker) Process() {
 	// 删除这些选出的ticket，在 index 中的数据
 	for i := 0; i < len(matchedEntries); i++ {
 		// Check that the current matched entries are all still present and eligible for the match to be formed.
+		// 简单说就是当前presence 如果没有在m.indexes 之中那么这个队伍要删除
 		currentMatchedEntries := matchedEntries[i]
 		var incomplete bool
 		for _, entry := range currentMatchedEntries {
@@ -385,8 +386,8 @@ func (m *LocalMatchmaker) Process() {
 
 				// Check if there's a matchmaker matched runtime callback, call it, and see if it returns a match ID.
 				fn := m.runtime.MatchmakerMatched()
-				// 这里我不清楚为什么要提供这样一个第三方的函数
-				// 目前来看就是通过这个entries 获取对应matchid
+				// 目前我的思路是token是服务于client match ，而match ID是服务于server authoritative matches
+				// 也就是说，让匹配模块创建一个authoritative match，必须注册一个对应的函数，去调用创建authoritative match的RPC函数
 				if fn != nil {
 					tokenOrMatchID, isMatchID, err = fn(context.Background(), entries)
 					if err != nil {
