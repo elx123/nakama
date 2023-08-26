@@ -276,6 +276,8 @@ func ExecuteInTx(ctx context.Context, tx Tx, fn func() error) (err error) {
 			}
 			return err
 		}
+		// 这里就有retry的逻辑在,如果retryable 为true , 那么就执行tx.ExecContext(ctx, "ROLLBACK TO SAVEPOINT cockroach_restart") ,同时 retryErr != nil
+		// 执行 for
 		if _, retryErr := tx.ExecContext(ctx, "ROLLBACK TO SAVEPOINT cockroach_restart"); retryErr != nil {
 			return newTxnRestartError(retryErr, err)
 		}
