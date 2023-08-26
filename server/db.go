@@ -91,6 +91,7 @@ func DbConnect(ctx context.Context, logger *zap.Logger, config Config) (*sql.DB,
 	}
 
 	// Periodically check database hostname for underlying address changes.
+	// 对于这一段代码,我持否定的态度,应用层app,为什么要关心host 背后的ip地址? ,具体观点,相见readroam 笔记
 	go func() {
 		ticker := time.NewTicker(time.Duration(config.GetDatabase().DnsScanIntervalSec) * time.Second)
 		for {
@@ -186,6 +187,7 @@ func DbConnect(ctx context.Context, logger *zap.Logger, config Config) (*sql.DB,
 func dbResolveAddress(ctx context.Context, logger *zap.Logger, host string) ([]string, map[string]struct{}) {
 	resolveCtx, resolveCtxCancelFn := context.WithTimeout(ctx, 15*time.Second)
 	defer resolveCtxCancelFn()
+	// 这段代码的目的是解析一个主机名（例如 "www.google.com"）到其对应的 IP 地址，类似于 nslookup 或 dig 命令的功能。这里使用了 Go 的 net 包中的功能
 	addr, err := net.DefaultResolver.LookupHost(resolveCtx, host)
 	if err != nil {
 		logger.Debug("Error resolving database address, using previously resolved address", zap.String("host", host), zap.Error(err))
