@@ -261,6 +261,14 @@ func ExecuteInTx(ctx context.Context, tx Tx, fn func() error) (err error) {
 		// for either the standard PG errcode SerializationFailureError:40001 or the Cockroach extension
 		// errcode RetriableError:CR000. The Cockroach extension has been removed server-side, but support
 		// for it has been left here for now to maintain backwards compatibility.
+		// 这段注释描述了在某些错误情况下的处理策略。特别地，它提及了两个错误码：标准的 PostgreSQL 错误码 SerializationFailureError:40001 和 CockroachDB 扩展的错误码 RetriableError:CR000。
+
+		// 这里的重点是：
+
+		// 如果遇到这些错误，它们是可以尝试重试的错误。
+		// 之所以要检查 CR000 这个错误码是因为它曾是 CockroachDB 的一个扩展错误码，用于标识可重试的错误。然而，根据注释，这个特定的错误码在 CockroachDB 服务器端已经被移除。尽管如此，客户端的代码仍然保留了对它的检查，以维护向后兼容性。这意味着，如果你使用的是一个旧版本的 CockroachDB，这个错误码仍然可能会出现。
+		// 综上，当你在处理数据库错误时，你的代码检查了这两个错误码，并根据这些错误码决定是否重新尝试操作。这是一种处理潜在的事务冲突或其他可重试错误的策略。
+
 		var pgErr *pgconn.PgError
 		if retryable := errors.As(errorCause(err), &pgErr) && (pgErr.Code == "CR000" || pgErr.Code == pgerrcode.SerializationFailure); !retryable {
 			if released {
