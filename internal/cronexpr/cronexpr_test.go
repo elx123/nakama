@@ -200,12 +200,12 @@ var crontests = []crontest{
 func TestExpressions(t *testing.T) {
 	for _, test := range crontests {
 		for _, times := range test.times {
-			from, _ := time.Parse("2006-01-02 15:04:05", times.from)
-			expr, err := Parse(test.expr)
+			from, _ := time.Parse("2006-01-02 15:04:05", times.from) // 将对应字符串 按照对应格式 解析成time 对象
+			expr, err := Parse(test.expr)                            // 将对应的 cron expression 转换成 *Expression
 			if err != nil {
 				t.Errorf(`Parse("%s") returned "%s"`, test.expr, err.Error())
 			}
-			next := expr.Next(from)
+			next := expr.Next(from) // 给出起始时间,再利用cron expression 获取下一步时间
 			nextstr := next.Format(test.layout)
 			if nextstr != times.next {
 				t.Errorf(`("%s").Next("%s") = "%s", got "%s"`, test.expr, times.from, times.next, nextstr)

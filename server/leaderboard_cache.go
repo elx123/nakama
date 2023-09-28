@@ -20,13 +20,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgconn"
 	"log"
 	"math"
 	"sort"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgconn"
 
 	"github.com/heroiclabs/nakama/v3/internal/cronexpr"
 	"github.com/jackc/pgtype"
@@ -159,11 +160,12 @@ type LeaderboardCache interface {
 	Remove(id string)
 }
 
+// 核心结构
 type LocalLeaderboardCache struct {
 	sync.RWMutex
 	logger       *zap.Logger
 	db           *sql.DB
-	leaderboards map[string]*Leaderboard
+	leaderboards map[string]*Leaderboard // 目前看leaderboards是leaderboardList和tournamentList的集合体
 
 	leaderboardList []*Leaderboard // Non-tournament only
 	tournamentList  []*Leaderboard
@@ -413,6 +415,7 @@ func (l *LocalLeaderboardCache) Insert(id string, authoritative bool, sortOrder,
 	l.Unlock()
 }
 
+// 因为leaderboardList是有序的,所以cursor,可以通过index来记录位置信息
 func (l *LocalLeaderboardCache) List(categoryStart, categoryEnd, limit int, cursor *LeaderboardListCursor) ([]*Leaderboard, *LeaderboardListCursor, error) {
 	list := make([]*Leaderboard, 0, limit)
 	var newCursor *TournamentListCursor
