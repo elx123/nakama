@@ -572,7 +572,7 @@ func (m *LocalMatchmaker) Add(ctx context.Context, presences []*MatchmakerPresen
 	return ticket, createdAt, nil
 }
 
-// 这个函数貌似没有在整个框架中使用
+// 这个函数 用来分布式 中,用来 写入其他node 中 匹配名单
 func (m *LocalMatchmaker) Insert(extracts []*MatchmakerExtract) error {
 	if m.stopped.Load() {
 		return nil
