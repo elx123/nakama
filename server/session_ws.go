@@ -273,6 +273,7 @@ IncomingLoop:
 
 func (s *sessionWS) maybeResetPingTimer() bool {
 	// If there's already a reset in progress there's no need to wait.
+	// 使用原子变量（在这种情况下是通过CompareAndSwap方法）是为了减少锁竞争，提高效率。
 	if !s.pingTimerCAS.CompareAndSwap(1, 0) {
 		return true
 	}
