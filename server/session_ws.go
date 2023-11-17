@@ -374,6 +374,9 @@ func (s *sessionWS) Format() SessionFormat {
 	return s.format
 }
 
+// 这里有个细节,这里我们很少在上层检查Send的返回值,很大可能是因为,在逻辑上作者认为以下2个观点
+// 第一如果说marshal出错,最多客户端无法接收到反馈,数据已经入库,最多也就是重启,另一方面,这个时候服务端肯定也无法正常工作了
+// 不过从我的角度看就是不合理,在我重构中必须处理
 func (s *sessionWS) Send(envelope *rtapi.Envelope, reliable bool) error {
 	var payload []byte
 	var err error
