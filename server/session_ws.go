@@ -37,7 +37,7 @@ var ErrSessionQueueFull = errors.New("session outgoing queue full")
 type sessionWS struct {
 	sync.Mutex
 	logger     *zap.Logger
-	config     *Config
+	config     Config
 	id         uuid.UUID
 	format     SessionFormat
 	userID     uuid.UUID
