@@ -69,9 +69,14 @@ type sessionWS struct {
 	stopped                bool
 	conn                   *websocket.Conn
 	receivedMessageCounter int
-	pingTimer              *time.Timer
-	pingTimerCAS           *atomic.Uint32
-	outgoingCh             chan []byte
+	// 从nakama的代码中,我发现在接收消息的同时,维护着一个计数器,当计数器归零,就会重置ping pong的定时器,也就是说当接收消息的频率越高,就会停止发送ping pong消息帧?
+	// chatGPT
+	// 是的，根据你的描述，Nakama服务器在接收消息时通过维护一个计数器来控制Ping/Pong消息的发送频率。
+	// 当计数器归零时重置定时器，意味着如果频繁接收消息，可能会推迟发送Ping消息。这样的设计可能是为了优化性能和网络流量，因为频繁的消息交换本身就表明连接是活跃的，
+	// 因此不需要额外的Ping/Pong消息来验证连接状态。这是一种智能调节心跳机制的策略，旨在根据实际的数据传输活动调整心跳消息的频率。
+	pingTimer    *time.Timer
+	pingTimerCAS *atomic.Uint32
+	outgoingCh   chan []byte
 }
 
 func NewSessionWS(logger *zap.Logger, config Config, format SessionFormat, sessionID, userID uuid.UUID, username string, vars map[string]string, expiry int64, clientIP, clientPort, lang string, protojsonMarshaler *protojson.MarshalOptions, protojsonUnmarshaler *protojson.UnmarshalOptions, conn *websocket.Conn, sessionRegistry SessionRegistry, statusRegistry *StatusRegistry, matchmaker Matchmaker, tracker Tracker, metrics Metrics, pipeline *Pipeline, runtime *Runtime) Session {
@@ -374,7 +379,7 @@ func (s *sessionWS) Format() SessionFormat {
 	return s.format
 }
 
-// 这里我们同一chatGPT-----如果消息不是业务逻辑的关键部分，比如一些状态更新或非关键的通知，丢弃这些消息可能不会对游戏的核心体验产生显著影响。
+// 这里我们同意chatGPT-----如果消息不是业务逻辑的关键部分，比如一些状态更新或非关键的通知，丢弃这些消息可能不会对游戏的核心体验产生显著影响。
 func (s *sessionWS) Send(envelope *rtapi.Envelope, reliable bool) error {
 	var payload []byte
 	var err error
