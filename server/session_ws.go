@@ -75,7 +75,7 @@ type sessionWS struct {
 	// 当计数器归零时重置定时器，意味着如果频繁接收消息，可能会推迟发送Ping消息。这样的设计可能是为了优化性能和网络流量，因为频繁的消息交换本身就表明连接是活跃的，
 	// 因此不需要额外的Ping/Pong消息来验证连接状态。这是一种智能调节心跳机制的策略，旨在根据实际的数据传输活动调整心跳消息的频率。
 	pingTimer    *time.Timer
-	pingTimerCAS *atomic.Uint32
+	pingTimerCAS *atomic.Uint32 // 0 表示停止, 1 表示启用
 	outgoingCh   chan []byte
 }
 
@@ -188,6 +188,7 @@ func (s *sessionWS) Consume() {
 		return
 	}
 	// 这里我猜测，作为全双工协议，我们也需要设置对应的handler
+	// 所以gorilla/websocket 这个库将ping和pong 隐藏在库中处理
 	s.conn.SetPongHandler(func(string) error {
 		// 在接受到pong的 message以后，重置ping pong定时器
 		s.maybeResetPingTimer()
@@ -278,7 +279,7 @@ IncomingLoop:
 
 func (s *sessionWS) maybeResetPingTimer() bool {
 	// If there's already a reset in progress there's no need to wait.
-	// 使用原子变量（在这种情况下是通过CompareAndSwap方法）是为了减少锁竞争，提高效率。
+	// 这里我理解为什么要加锁了,因为这个function作为handler 在 websocket这库内部被执行,所以存在并发调用的风险
 	if !s.pingTimerCAS.CompareAndSwap(1, 0) {
 		return true
 	}
